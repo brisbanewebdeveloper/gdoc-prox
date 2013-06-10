@@ -4,8 +4,8 @@ Class gdoc_prox {
 
     public $baseUrl = 'your_base_url';
 
-    public function buildQuery($query = array()) {
-        $query += array(
+    public function buildQuery($query_add = array()) {
+        $query = array(
             /**
              * Setting this to zero becomes no cache. Setting this to 1 to check the change for Google Doc
              * that you have just updated (though, you can just delete the cache)
@@ -27,6 +27,7 @@ Class gdoc_prox {
             's' => 'your_secret',
             't' => 'your_refresh_token',
         );
+        $query = array_merge($query, $query_add);
         return http_build_query($query);
     }
     /**
@@ -55,8 +56,8 @@ Class gdoc_prox {
      * ));
      */
     public function get($docId, $options = array()) {
-        $query = $this->buildQuery(array('id' => $docId));
-        if (isset($options['query'])) $query += $options['query'];
+        if ( ! isset($options['query'])) $options['query'] = array();
+        $query = $this->buildQuery(array_merge($options['query'], array('id' => $docId)));
         return json_decode(file_get_contents($this->baseUrl . '/get/?' . $query));
     }
     /**
@@ -70,15 +71,16 @@ Class gdoc_prox {
      * ));
      */
     public function show($docId, $options = array()) {
-        $query = $this->buildQuery(array('id' => $docId));
-        if (isset($options['query'])) $query += $options['query'];
+        if ( ! isset($options['query'])) $options['query'] = array();
+        $query = $this->buildQuery(array_merge($options['query'], array('id' => $docId)));
         return file_get_contents($this->baseUrl . '/show/?' . $query);
     }
     /**
      * Gets list of Google Docs
      */
-    public function getList() {
-        $query = $this->buildQuery();
+    public function getList($options = array()) {
+        if ( ! isset($options['query'])) $options['query'] = array();
+        $query = $this->buildQuery($options['query']);
         return json_decode(file_get_contents($this->baseUrl . '/list/?' . $query));
     }
     /**
@@ -88,22 +90,26 @@ Class gdoc_prox {
      *         because Google Doc Proxy currently does not delete expired cache data.
      *         Therefore, the purpose of using this method is only for deleteDocument method.
      */
-    public function getCachedDocuments() {
-        $query = $this->buildQuery();
+    public function getCachedDocuments($options = array()) {
+        if ( ! isset($options['query'])) $options['query'] = array();
+        $query = $this->buildQuery($options['query']);
         return json_decode(file_get_contents($this->baseUrl . '/list-cached-documents/?' . $query));
     }
     /**
      * Deletes cache data for individual Google Doc
      */
-    public function deleteDocument($docId) {
-        $query = $this->buildQuery(array('id' => $docId));
+    public function deleteDocument($docId, $options = array()) {
+        if ( ! isset($options['query'])) $options['query'] = array();
+        $query = $this->buildQuery(array_merge($options['query'], array('id' => $docId)));
         return json_decode(file_get_contents($this->baseUrl . '/delete-document/?' . $query));
     }
     /**
      * Deletes all the cache data for individual Google Doc
      * Deletes the list data of Google Docs
      */
-    public function deleteData() {
+    public function deleteData($options = array()) {
+        if ( ! isset($options['query'])) $options['query'] = array();
+        $query = $this->buildQuery($options['query']);
         return json_decode(file_get_contents($this->baseUrl . '/delete-all/?' . $query));
     }
 }
