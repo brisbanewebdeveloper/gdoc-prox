@@ -76,6 +76,16 @@ Class gdoc_prox {
         return file_get_contents($this->baseUrl . '/show/?' . $query);
     }
     /**
+     * Downloads individual Google Doc
+     *
+     * Return value is not in JSON
+     */
+    public function download($docId, $options = array()) {
+        if ( ! isset($options['query'])) $options['query'] = array();
+        $query = $this->buildQuery(array_merge($options['query'], array('id' => $docId)));
+        return file_get_contents($this->baseUrl . '/show/?' . $query);
+    }
+    /**
      * Gets list of Google Docs
      */
     public function getList($options = array()) {
